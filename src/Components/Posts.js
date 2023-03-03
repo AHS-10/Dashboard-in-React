@@ -1,0 +1,134 @@
+import React, { useEffect, useState } from "react";
+import { Get } from "../APIBaseMethods/PostApiHandle";
+import Backdrop from "@mui/material/Backdrop";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Fade from "@mui/material/Fade";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
+
+function Posts() {
+  const [loader, setLoader] = useState(false);
+  const [apidata, setApiData] = useState([]);
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  // let getdata = () => {
+  //   Get("posts")
+  //     .then((response) => {
+  //       setApiData([...apidata,...response.data]);
+  //       console.log(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // };
+  useEffect(() => {
+    // getdata();
+    setLoader(true);
+    Get("posts")
+      .then((response) => {
+        setApiData([...apidata, ...response.data]);
+        setLoader(false);
+        // console.log(response.data);
+      })
+      .catch((error) => {
+        setLoader(false);
+        // console.log(error);
+      });
+  }, []);
+  console.log(apidata);
+  return (
+    <>
+      <div className="d-flex justify-content-end">
+        <Button variant="contained" className="rounded-5 " onClick={handleOpen}>
+          Add
+        </Button>
+      </div>
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+          },
+        }}
+      >
+        <Fade in={open}>
+          <Box sx={style}>
+            <Typography id="transition-modal-title" variant="h6" component="h2">
+              Add
+            </Typography>
+            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
+              Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+            </Typography>
+          </Box>
+        </Fade>
+      </Modal>
+      <div className="container">
+        <h2>Posts</h2>
+        <div className="row d-flex justify-content-around align-item-evenly">
+          {/* {apidata.map((item, index) => {
+            return (
+              <div key={index} className="col-sm-12 border rounded pt-3 my-3 shadow ">
+                <h5><b>User Id: {item.id}</b></h5>
+                <p> <b>Title:</b> {item.title}</p>
+                <p> <b>Body:</b> {item.body}</p>
+              </div>
+            );
+          })} */}
+          {loader ? (
+            <>
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <h2>Loading...</h2>
+            </>
+          ) : apidata && apidata.length < 1 ? (
+            <img src="https://st4.depositphotos.com/5686152/27322/v/600/depositphotos_273220330-stock-illustration-sorry-page-found-404-error.jpg" />
+          ) : apidata && apidata.length > 0 ? (
+            apidata.map((item, index) => {
+              return (
+                <div
+                  key={index}
+                  className="col-sm-12 border rounded pt-3 my-3 shadow "
+                >
+                  <h5>
+                    <b>User Id: {item.id}</b>
+                  </h5>
+                  <p>
+                    {" "}
+                    <b>Title:</b> {item.title}
+                  </p>
+                  <p>
+                    {" "}
+                    <b>Body:</b> {item.body}
+                  </p>
+                </div>
+              );
+            })
+          ) : null}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default Posts;
